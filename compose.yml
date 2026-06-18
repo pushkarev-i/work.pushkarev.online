@@ -1,0 +1,47 @@
+services:
+  demo-pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: demo-pgvector
+    environment:
+      POSTGRES_DB: ragdb
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    command: ["postgres", "-c", "shared_buffers=128MB", "-c", "max_connections=20"]
+    volumes:
+      - demo_pgdata:/var/lib/postgresql/data
+    networks: [demo]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d ragdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  demo-backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/sergeicz/work-pushkarev-backend:latest}
+    container_name: demo-backend
+    environment:
+      DATABASE_URL: postgres://rag:${PG_PASSWORD}@demo-pgvector:5432/ragdb
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      LLM_MODEL: ${LLM_MODEL:-openrouter/auto}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      SITE_URL: ${SITE_URL}
+      PORT: "3100"
+      TRANSFORMERS_CACHE: /app/.cache
+    volumes:
+      - demo_modelcache:/app/.cache
+    ports:
+      - "127.0.0.1:3100:3100"
+    depends_on:
+      demo-pgvector:
+        condition: service_healthy
+    networks: [demo]
+    restart: unless-stopped
+
+volumes:
+  demo_pgdata:
+  demo_modelcache:
+
+networks:
+  demo:
+    name: demo

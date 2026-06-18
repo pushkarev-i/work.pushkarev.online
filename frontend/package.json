@@ -1,0 +1,16 @@
+{
+  "name": "work-pushkarev-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.113",
+    "@iconify-json/simple-icons": "^1.2.86",
+    "astro": "^4.16.10"
+  }
+}

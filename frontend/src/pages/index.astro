@@ -1,0 +1,784 @@
+---
+const API_URL = import.meta.env.PUBLIC_API_URL ?? 'https://workapi.pushkarev.online';
+
+const links = [
+  { label: 'Резюме',   href: '/resume.pdf',                  icon: 'doc',      color: '#c4b5fd' },
+  { label: 'GitHub',   href: 'https://github.com/pushkarev-i',  icon: 'github',   color: '#f1f5f9' },
+  { label: 'Telegram', href: 'https://t.me/',                icon: 'telegram', color: '#7dd3fc' },
+  { label: 'Почта',    href: 'mailto:ilia@pushkarev.online',  icon: 'mail',     color: '#6ee7b7' },
+];
+
+const svgs: Record<string, string> = {
+  doc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg">
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+    <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+    <path class="doc-line doc-line-1" d="M10 9H8"/>
+    <path class="doc-line doc-line-2" d="M16 13H8"/>
+    <path class="doc-line doc-line-3" d="M16 17H8"/>
+  </svg>`,
+
+  github: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg">
+    <path class="gh-body" d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+    <path class="gh-tail" d="M9 18c-4.51 2-5-2-7-2"/>
+  </svg>`,
+
+  telegram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" class="icon-svg">
+    <g class="send-group">
+      <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/>
+      <path d="m21.854 2.147-10.94 10.939"/>
+    </g>
+    <path class="send-trail" d="M -3 28 C -0.5 26.8 1.6 24.6 3.3 22 C 4.8 19.7 5.2 17.6 4.2 16.1 C 3.2 14.7 1.4 14.5 0.3 15.8 C -0.9 17.2 -0.6 19.4 1.2 20.4 C 3.4 21.5 6.4 19.4 9 15.8" stroke-width="1" stroke-dasharray="2 2" fill="none"/>
+  </svg>`,
+
+  mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg">
+    <path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"/>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+    <path class="mail-check" d="m16 19 2 2 4-4"/>
+  </svg>`,
+};
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Илья Пушкарёв — инженер по ИИ-интеграциям</title>
+    <meta name="description" content="Онлайн-резюме Ильи Пушкарёва. Спросите ассистента об опыте — он ответит на основе резюме (RAG)." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..400&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+
+    <svg id="lg-filters" xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true"></svg>
+
+    <div class="bg" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="orb orb-4"></div>
+    </div>
+
+    <main>
+
+      <header class="hero">
+        <div class="avatar-wrap">
+          <div class="avatar lg-glass">
+            <span class="avatar-initials">ИП</span>
+          </div>
+        </div>
+        <h1>Илья Пушкарёв</h1>
+        <p class="role">Инженер по ИИ-интеграциям и автоматизации</p>
+        <p class="tagline">LLM / RAG · интеграция бизнес-систем, телефонии и CRM</p>
+      </header>
+
+      <nav class="links">
+        {links.map((l) => (
+          <a
+            class="link lg-glass"
+            href={l.href}
+            target="_blank"
+            rel="noopener"
+            style={`--icon-color:${l.color}`}
+            aria-label={l.label}
+            data-icon={l.icon}
+          >
+            <span class="link-icon" set:html={svgs[l.icon]} />
+          </a>
+        ))}
+      </nav>
+
+      <section class="chat lg-glass" aria-label="Чат с ассистентом">
+        <div class="chat-head">
+          <div class="ai-badge lg-glass">
+            <svg viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="5.5" cy="7.5" r="1" fill="currentColor"/>
+              <circle cx="10.5" cy="7.5" r="1" fill="currentColor"/>
+              <path d="M5.5 10.5c.7.8 4.3.8 5 0" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+            <span class="ai-badge-dot"></span>
+          </div>
+          <span class="chat-title">Ассистент</span>
+          <span class="chat-sub">отвечает на основе резюме</span>
+        </div>
+
+        <div id="log" class="log">
+          <div class="msg bot">
+            <div class="msg-inner">
+              Привет! Спросите про опыт, стек или проекты — например: «Какой опыт с RAG?»
+            </div>
+          </div>
+        </div>
+
+        <form id="form" class="input-row">
+          <input
+            id="q"
+            class="lg-glass"
+            type="text"
+            autocomplete="off"
+            maxlength="1000"
+            placeholder="Задайте вопрос…"
+          />
+          <button id="send" class="send-btn lg-glass" type="submit" aria-label="Отправить">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M17 10 3 3l3 7-3 7 14-7z" fill="currentColor"/>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <footer>Astro · LangChain.js · pgvector · OpenRouter · VPS</footer>
+
+    </main>
+
+    <script define:vars={{ API_URL }}>
+      function makeLGFilter(id, w, h, r, depth = 14, strength = 18, ca = 5) {
+        const px = Math.ceil((r / w) * 15);
+        const py = Math.ceil((r / h) * 15);
+        const dispMap = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+            <style>.m{mix-blend-mode:screen}</style>
+            <defs>
+              <linearGradient id="Y" x1="0" x2="0" y1="${py}%" y2="${100-py}%">
+                <stop offset="0%" stop-color="#0F0"/><stop offset="100%" stop-color="#000"/>
+              </linearGradient>
+              <linearGradient id="X" x1="${px}%" x2="${100-px}%" y1="0" y2="0">
+                <stop offset="0%" stop-color="#F00"/><stop offset="100%" stop-color="#000"/>
+              </linearGradient>
+            </defs>
+            <rect width="${w}" height="${h}" fill="#808080"/>
+            <g filter="blur(2px)">
+              <rect width="${w}" height="${h}" fill="#000080"/>
+              <rect width="${w}" height="${h}" fill="url(#Y)" class="m"/>
+              <rect width="${w}" height="${h}" fill="url(#X)" class="m"/>
+              <rect x="${depth}" y="${depth}" width="${w-2*depth}" height="${h-2*depth}"
+                fill="#808080" rx="${r}" ry="${r}" filter="blur(${depth}px)"/>
+            </g>
+          </svg>`
+        );
+        return `<filter id="${id}" color-interpolation-filters="sRGB" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse">
+          <feImage href="${dispMap}" result="dm" x="0" y="0" width="${w}" height="${h}"/>
+          <feDisplacementMap in="SourceGraphic" in2="dm" scale="${strength+ca*2}" xChannelSelector="R" yChannelSelector="G"/>
+          <feColorMatrix type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="R"/>
+          <feDisplacementMap in="SourceGraphic" in2="dm" scale="${strength+ca}" xChannelSelector="R" yChannelSelector="G"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="G"/>
+          <feDisplacementMap in="SourceGraphic" in2="dm" scale="${strength}" xChannelSelector="R" yChannelSelector="G"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="B"/>
+          <feBlend in="R" in2="G" mode="screen"/>
+          <feBlend in2="B" mode="screen"/>
+        </filter>`;
+      }
+
+      function applyLG(el, strength, ca) {
+        const rect = el.getBoundingClientRect();
+        const w = Math.round(rect.width);
+        const h = Math.round(rect.height);
+        if (!w || !h) return;
+        const r = parseFloat(getComputedStyle(el).borderRadius) || 20;
+        const depth = Math.min(r * 0.8, 16);
+        const uid = 'lg' + Math.random().toString(36).slice(2, 7);
+
+        const svg = document.getElementById('lg-filters');
+        const defs = svg.querySelector('defs') || svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg','defs'));
+        const tmp = document.createElementNS('http://www.w3.org/2000/svg','g');
+        tmp.innerHTML = makeLGFilter(uid, w, h, r, depth, strength, ca);
+        defs.appendChild(tmp.firstElementChild);
+
+        el.style.backdropFilter = `url(#${uid}) blur(40px) saturate(220%)`;
+        el.style.webkitBackdropFilter = `url(#${uid}) blur(40px) saturate(220%)`;
+        el.dataset.lgId = uid;
+      }
+
+      const isChromium = CSS.supports('backdrop-filter', 'url(#x)');
+
+      function initLG() {
+        document.querySelectorAll('.lg-glass').forEach(el => {
+          if (isChromium) {
+            const s = el.classList.contains('send-btn') ? 12 : 18;
+            const c = el.classList.contains('avatar') ? 3 : 5;
+            applyLG(el, s, c);
+          }
+        });
+      }
+
+      function initIconAnims() {
+        const idle = {
+          doc:      'idle-float 3.8s ease-in-out infinite',
+          github:   'idle-pulse 3.2s ease-in-out infinite',
+          telegram: 'idle-tilt 3s ease-in-out infinite',
+          mail:     'idle-bounce 4s ease-in-out infinite',
+        };
+
+        document.querySelectorAll('.link[data-icon]').forEach(link => {
+          const icon = link.dataset.icon;
+          const svg  = link.querySelector('.icon-svg');
+          if (!svg || !idle[icon]) return;
+
+          svg.style.animation = idle[icon];
+
+          if (icon === 'doc') {
+            const lines = svg.querySelectorAll('.doc-line');
+            const delays = [.3, .5, .7];
+            lines.forEach((p, i) => {
+              const len = p.getTotalLength?.() ?? 10;
+              p.style.strokeDasharray = len;
+              p.style.strokeDashoffset = 0;
+              p.style.transition = `stroke-dashoffset .4s ${delays[i]}s ease`;
+            });
+            link.addEventListener('mouseenter', () => {
+              svg.style.animation = 'none';
+              svg.style.transform = 'scale(1.05)';
+              svg.style.transition = 'transform .3s ease';
+              lines.forEach(p => { p.style.strokeDashoffset = p.getTotalLength?.() ?? 10; });
+            });
+            link.addEventListener('mouseleave', () => {
+              svg.style.animation = idle.doc;
+              svg.style.transform = '';
+              lines.forEach(p => { p.style.strokeDashoffset = 0; });
+            });
+          }
+
+          if (icon === 'github') {
+            const tail = svg.querySelector('.gh-tail');
+            if (tail) {
+              tail.style.transformBox   = 'fill-box';
+              tail.style.transformOrigin = '100% 0%';
+            }
+            link.addEventListener('mouseenter', () => {
+              svg.style.animation = 'none';
+              if (tail) tail.style.animation = 'gh-wag 2.5s ease-in-out infinite';
+            });
+            link.addEventListener('mouseleave', () => {
+              svg.style.animation = idle.github;
+              if (tail) { tail.style.animation = 'none'; tail.style.transform = ''; }
+            });
+          }
+
+          if (icon === 'telegram') {
+            const g     = svg.querySelector('.send-group');
+            const trail = svg.querySelector('.send-trail');
+            if (g) g.style.transition = 'transform .5s ease';
+            if (trail) {
+              trail.style.strokeDasharray  = '40';
+              trail.style.strokeDashoffset = '40';
+              trail.style.opacity          = '0';
+              trail.style.transition       = 'stroke-dashoffset .55s .1s ease, opacity .1s .1s';
+            }
+            link.addEventListener('mouseenter', () => {
+              svg.style.animation = 'none';
+              if (g)     g.style.transform        = 'translate(3px,-3px) scale(0.82)';
+              if (trail) { trail.style.strokeDashoffset = '0'; trail.style.opacity = '1'; }
+            });
+            link.addEventListener('mouseleave', () => {
+              svg.style.animation = idle.telegram;
+              if (g)     g.style.transform        = '';
+              if (trail) { trail.style.strokeDashoffset = '40'; trail.style.opacity = '0'; }
+            });
+          }
+
+          if (icon === 'mail') {
+            const check = svg.querySelector('.mail-check');
+            if (check) {
+              const len = check.getTotalLength?.() ?? 14;
+              check.style.strokeDasharray  = len;
+              check.style.strokeDashoffset = len;
+              check.style.transition       = 'stroke-dashoffset .4s ease';
+            }
+            link.addEventListener('mouseenter', () => {
+              svg.style.animation = 'none';
+              if (check) check.style.strokeDashoffset = '0';
+            });
+            link.addEventListener('mouseleave', () => {
+              svg.style.animation = idle.mail;
+              if (check) check.style.strokeDashoffset = check.getTotalLength?.() ?? 14;
+            });
+          }
+        });
+      }
+
+      if (document.readyState === 'complete') { initLG(); initIconAnims(); }
+      else window.addEventListener('load', () => { initLG(); initIconAnims(); });
+
+      const log   = document.getElementById('log');
+      const form  = document.getElementById('form');
+      const input = document.getElementById('q');
+      const send  = document.getElementById('send');
+
+      function md(t) {
+        return t.replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+          .replace(/`([^`]+)`/g,'<code>$1</code>')
+          .replace(/\n{2,}/g,'</p><p>')
+          .replace(/\n/g,'<br>');
+      }
+
+      function addMsg(html, who, isHtml = false) {
+        const row = document.createElement('div');
+        row.className = `msg ${who}`;
+        const inner = document.createElement('div');
+        inner.className = 'msg-inner';
+        if (isHtml) inner.innerHTML = html; else inner.textContent = html;
+        inner.style.animation = 'msg-in .28s cubic-bezier(.34,1.56,.64,1) both';
+        row.appendChild(inner);
+        log.appendChild(row);
+        log.scrollTop = log.scrollHeight;
+        return inner;
+      }
+
+      function showTyping() {
+        const row = document.createElement('div');
+        row.className = 'msg bot'; row.id = 'typing';
+        row.innerHTML = '<div class="msg-inner"><span class="dots"><span></span><span></span><span></span></span></div>';
+        log.appendChild(row);
+        log.scrollTop = log.scrollHeight;
+        return row;
+      }
+
+      const COOLDOWN_MS  = 2_500;
+      const SESSION_LIMIT = 20;
+      let msgCount  = 0;
+      let cooldownUntil = 0;
+
+      function setCooldown() {
+        cooldownUntil = Date.now() + COOLDOWN_MS;
+        input.disabled = send.disabled = true;
+        const tick = setInterval(() => {
+          const left = Math.ceil((cooldownUntil - Date.now()) / 1000);
+          if (left <= 0) {
+            clearInterval(tick);
+            if (msgCount < SESSION_LIMIT) {
+              input.disabled = send.disabled = false;
+              input.placeholder = 'Задайте вопрос…';
+              input.focus();
+            }
+          } else {
+            input.placeholder = `Подождите ${left} с…`;
+          }
+        }, 250);
+      }
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (Date.now() < cooldownUntil) return;
+        if (msgCount >= SESSION_LIMIT) return;
+
+        const q = input.value.trim();
+        if (q.length < 5) return;
+
+        msgCount++;
+        addMsg(q, 'user');
+        input.value = '';
+        input.disabled = send.disabled = true;
+        const t = showTyping();
+        let success = false;
+        try {
+          const r = await fetch(`${API_URL}/chat`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ message: q }),
+          });
+          t.remove();
+          if (r.status === 429) {
+            addMsg('Слишком много запросов — подождите минуту.', 'bot');
+          } else if (!r.ok) {
+            throw 0;
+          } else {
+            const d = await r.json();
+            addMsg('<p>' + md(d.answer ?? 'Пустой ответ.') + '</p>', 'bot', true);
+            success = true;
+          }
+        } catch {
+          t.remove();
+          addMsg('Ошибка соединения. Напишите на ilia@pushkarev.online', 'bot');
+        } finally {
+          if (msgCount >= SESSION_LIMIT) {
+            input.disabled = send.disabled = true;
+            input.placeholder = 'Лимит сессии исчерпан';
+          } else if (success) {
+            setCooldown();
+          } else {
+            input.disabled = send.disabled = false;
+            input.focus();
+          }
+        }
+      });
+    </script>
+
+    <style is:global>
+      .icon-svg { display: block; width: 22px; height: 22px; overflow: visible; }
+
+      .msg { display: flex; width: 100%; }
+      .msg.bot  { justify-content: flex-start; }
+      .msg.user { justify-content: flex-end; }
+
+      .msg-inner {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 18px;
+        font-size: .91rem; line-height: 1.55;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .msg.bot .msg-inner {
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.12);
+        border-bottom-left-radius: 5px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: rgba(255,255,255,.93);
+      }
+      .msg.user .msg-inner {
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        border-bottom-right-radius: 5px;
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(79,70,229,.4);
+      }
+      .msg-inner p { margin: 0; }
+      .msg-inner p + p { margin-top: 7px; }
+      .msg-inner strong { font-weight: 600; }
+      .msg-inner code {
+        font-family: 'SF Mono','Fira Code',monospace;
+        font-size: .85em;
+        background: rgba(255,255,255,.12);
+        padding: 1px 5px; border-radius: 4px;
+      }
+      .dots { display: inline-flex; gap: 4px; align-items: center; height: 16px; }
+      .dots span {
+        width: 5px; height: 5px; border-radius: 50%;
+        background: rgba(255,255,255,.5);
+        animation: dots 1.2s ease-in-out infinite;
+      }
+      .dots span:nth-child(2) { animation-delay: .18s; }
+      .dots span:nth-child(3) { animation-delay: .36s; }
+    </style>
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --blur:   40px;
+        --sat:    220%;
+        --glass:  rgba(255,255,255,0.072);
+        --border: rgba(255,255,255,0.18);
+        --text:   rgba(255,255,255,0.93);
+        --muted:  rgba(255,255,255,0.45);
+        --radius: 22px;
+      }
+
+      html { -webkit-font-smoothing: antialiased; }
+
+      body {
+        min-height: 100dvh;
+        background: #060608;
+        color: var(--text);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        display: flex; justify-content: center;
+        overflow-x: hidden;
+      }
+
+      .bg {
+        position: fixed; inset: 0; z-index: 0;
+        pointer-events: none; overflow: hidden;
+      }
+      .orb {
+        position: absolute; border-radius: 50%;
+        filter: blur(70px);
+        will-change: transform;
+      }
+      .orb-1 {
+        width: 700px; height: 700px; opacity: .7;
+        background: radial-gradient(circle, #6d28d9 0%, #4c1d95 50%, transparent 70%);
+        top: -250px; left: -200px;
+        animation: o1 24s ease-in-out infinite;
+      }
+      .orb-2 {
+        width: 600px; height: 600px; opacity: .65;
+        background: radial-gradient(circle, #0ea5e9 0%, #0369a1 50%, transparent 70%);
+        bottom: -150px; right: -150px;
+        animation: o2 30s ease-in-out infinite;
+      }
+      .orb-3 {
+        width: 450px; height: 450px; opacity: .5;
+        background: radial-gradient(circle, #059669 0%, #065f46 50%, transparent 70%);
+        top: 45%; left: 55%;
+        animation: o3 20s ease-in-out infinite;
+      }
+      .orb-4 {
+        width: 350px; height: 350px; opacity: .4;
+        background: radial-gradient(circle, #f59e0b 0%, #b45309 50%, transparent 70%);
+        top: 25%; right: 5%;
+        animation: o4 16s ease-in-out infinite;
+      }
+      @keyframes o1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-80px) scale(1.1)} 66%{transform:translate(-30px,60px) scale(.93)} }
+      @keyframes o2 { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(-80px,50px) scale(1.12)} 70%{transform:translate(50px,-70px) scale(.9)} }
+      @keyframes o3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-70px,-50px) scale(1.2)} }
+      @keyframes o4 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,60px) scale(1.15)} }
+
+      .lg-glass {
+        backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+        -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+        background: var(--glass);
+        border: 1px solid var(--border);
+        position: relative;
+        isolation: isolate;
+      }
+
+      .lg-glass::before {
+        content: '';
+        position: absolute; inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(
+          135deg,
+          rgba(255,255,255,0.38) 0%,
+          rgba(255,255,255,0.12) 18%,
+          rgba(255,255,255,0.04) 35%,
+          transparent 55%
+        );
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .lg-glass {
+        box-shadow:
+          0 0 0 0.5px rgba(255, 80, 80, 0.25),
+          0 0 0 1px   rgba(80, 255, 120, 0.15),
+          0 0 0 1.5px rgba(80, 100, 255, 0.12),
+          0 12px 40px rgba(0,0,0,0.35),
+          0 1px 0 rgba(255,255,255,0.12) inset;
+      }
+
+      main {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 560px;
+        padding: 52px 20px 40px;
+        display: flex; flex-direction: column; gap: 20px;
+      }
+
+      .hero {
+        text-align: center;
+        animation: rise .7s cubic-bezier(.34,1.4,.64,1) both;
+      }
+
+      .avatar-wrap {
+        display: flex; justify-content: center;
+        margin-bottom: 22px;
+      }
+
+      .avatar {
+        width: 88px; height: 88px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        animation: avatar-glow 4s ease-in-out infinite;
+      }
+
+      .avatar-initials {
+        position: relative; z-index: 2;
+        font-size: 1.5rem; font-weight: 700;
+        background: linear-gradient(135deg, #c4b5fd 30%, #7dd3fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      @keyframes avatar-glow {
+        0%,100% { box-shadow: 0 0 0 0.5px rgba(255,80,80,.25), 0 0 0 1px rgba(80,255,120,.15), 0 0 0 1.5px rgba(80,100,255,.12), 0 0 30px rgba(139,92,246,.35), 0 12px 40px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.12) inset; }
+        50%      { box-shadow: 0 0 0 0.5px rgba(255,80,80,.25), 0 0 0 1px rgba(80,255,120,.15), 0 0 0 1.5px rgba(80,100,255,.12), 0 0 50px rgba(139,92,246,.55), 0 12px 40px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.18) inset; }
+      }
+
+      h1 {
+        font-size: 2rem; font-weight: 700;
+        letter-spacing: -0.035em; line-height: 1.12;
+        margin-bottom: 8px;
+      }
+      .role {
+        font-size: .97rem; font-weight: 500;
+        color: rgba(255,255,255,.82); margin-bottom: 5px;
+      }
+      .tagline {
+        font-size: .83rem; color: var(--muted); line-height: 1.5;
+      }
+
+      .links {
+        display: flex; justify-content: center; gap: 14px;
+        animation: rise .7s .08s cubic-bezier(.34,1.4,.64,1) both;
+      }
+
+      .link {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--icon-color, rgba(255,255,255,.85));
+        text-decoration: none;
+        transition: transform .2s ease, filter .2s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .link:hover {
+        transform: scale(1.1) translateY(-2px);
+        filter: brightness(1.15);
+      }
+      .link:active { transform: scale(.94); }
+
+      .link-icon {
+        width: 24px; height: 24px;
+        position: relative; z-index: 2;
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      .chat {
+        border-radius: var(--radius);
+        display: flex; flex-direction: column;
+        overflow: hidden;
+        animation: rise .7s .16s cubic-bezier(.34,1.4,.64,1) both;
+      }
+
+      .chat-head {
+        display: flex; align-items: center; gap: 10px;
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+        position: relative; z-index: 2;
+      }
+
+      .ai-badge {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(196,181,253,.9);
+        flex-shrink: 0;
+        position: relative;
+      }
+      .ai-badge svg { width: 16px; height: 16px; position: relative; z-index: 2; }
+      .ai-badge-dot {
+        position: absolute; bottom: 1px; right: 1px;
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #34d399;
+        box-shadow: 0 0 6px rgba(52,211,153,.7);
+        border: 1.5px solid rgba(0,0,0,.4);
+        animation: dot-pulse 2.5s ease-in-out infinite;
+        z-index: 3;
+      }
+
+      .chat-title {
+        font-size: .87rem; font-weight: 600;
+        position: relative; z-index: 2;
+      }
+      .chat-sub {
+        font-size: .75rem; color: var(--muted);
+        margin-left: auto;
+        position: relative; z-index: 2;
+      }
+
+      .log {
+        padding: 14px;
+        min-height: 220px; max-height: 320px;
+        overflow-y: auto;
+        display: flex; flex-direction: column; gap: 8px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,.08) transparent;
+        position: relative; z-index: 2;
+      }
+      .log::-webkit-scrollbar { width: 3px; }
+      .log::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+
+      .input-row {
+        display: flex; gap: 8px;
+        padding: 10px;
+        border-top: 1px solid rgba(255,255,255,.1);
+        position: relative; z-index: 2;
+      }
+
+      #q {
+        flex: 1;
+        padding: 11px 15px;
+        border-radius: 14px;
+        font-family: inherit; font-size: .91rem;
+        color: var(--text);
+        outline: none;
+        transition: box-shadow .2s;
+      }
+      #q::placeholder { color: var(--muted); }
+      #q:focus {
+        box-shadow:
+          0 0 0 0.5px rgba(255,80,80,.25),
+          0 0 0 1px rgba(80,255,120,.15),
+          0 0 0 1.5px rgba(80,100,255,.12),
+          0 0 0 3px rgba(129,140,248,.2),
+          0 12px 40px rgba(0,0,0,.35),
+          0 1px 0 rgba(255,255,255,.12) inset;
+      }
+
+      .send-btn {
+        width: 44px; height: 44px; flex-shrink: 0;
+        border: none; border-radius: 14px;
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        color: #fff;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: transform .15s, filter .15s;
+        position: relative; z-index: 2;
+      }
+      .send-btn svg { width: 17px; height: 17px; }
+      .send-btn:hover { transform: scale(1.06); filter: brightness(1.1); }
+      .send-btn:active { transform: scale(.93); }
+      .send-btn:disabled { opacity: .4; cursor: default; transform: none; }
+
+      footer {
+        text-align: center; color: var(--muted);
+        font-size: .72rem; letter-spacing: .02em;
+        animation: rise .7s .24s both;
+      }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes msg-in {
+        from { opacity: 0; transform: translateY(6px) scale(.97); }
+        to   { opacity: 1; transform: none; }
+      }
+      @keyframes idle-float {
+        0%,100% { transform: translateY(0); }
+        50%     { transform: translateY(-4px); }
+      }
+      @keyframes idle-pulse {
+        0%,100% { transform: scale(1); opacity: .9; }
+        50%     { transform: scale(1.1); opacity: 1; }
+      }
+      @keyframes idle-tilt {
+        0%,100% { transform: rotate(0deg); }
+        25%     { transform: translate(2px,-2px) rotate(-8deg); }
+        75%     { transform: translate(-2px,2px) rotate(5deg); }
+      }
+      @keyframes idle-bounce {
+        0%,100% { transform: translateY(0); }
+        40%     { transform: translateY(-5px); }
+        60%     { transform: translateY(-2px); }
+      }
+      @keyframes gh-wag {
+        0%,100% { transform: rotate(0deg); }
+        14%     { transform: rotate(-15deg); }
+        28%     { transform: rotate(15deg); }
+        42%     { transform: rotate(-10deg); }
+        56%     { transform: rotate(10deg); }
+        70%     { transform: rotate(-5deg); }
+        84%     { transform: rotate(5deg); }
+      }
+      @keyframes dots {
+        0%,80%,100% { transform: translateY(0); opacity: .4; }
+        40%          { transform: translateY(-5px); opacity: 1; }
+      }
+      @keyframes dot-pulse {
+        0%,100% { box-shadow: 0 0 5px rgba(52,211,153,.6); }
+        50%      { box-shadow: 0 0 12px rgba(52,211,153,.9); }
+      }
+
+      @media (max-width: 400px) {
+        main { padding: 36px 14px 28px; gap: 16px; }
+        h1 { font-size: 1.7rem; }
+        .link { width: 50px; height: 50px; }
+      }
+    </style>
+  </body>
+</html>
